@@ -11,11 +11,13 @@ export default function Home() {
   const [tab, setTab] = useState<"book" | "mine">("book");
   return (
     <>
-      <h1>1:1 상담 예약</h1>
-      <div className="tabs">
-        <button className={tab === "book" ? "active" : ""} onClick={() => setTab("book")}>예약하기</button>
-        <button className={tab === "mine" ? "active" : ""} onClick={() => setTab("mine")}>내 예약 확인</button>
-      </div>
+      <header className="topbar">
+        <button type="button" className="brand" onClick={() => setTab("book")}>1:1 상담 예약</button>
+        <div className="topbar-actions">
+          {tab === "mine" && <button type="button" onClick={() => setTab("book")}>예약하기</button>}
+          <button type="button" className={tab === "mine" ? "active" : ""} onClick={() => setTab("mine")}>내 예약 확인</button>
+        </div>
+      </header>
       {tab === "book" ? <Booking /> : <MyReservations />}
     </>
   );
