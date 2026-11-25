@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { adminLogin, adminLogout, adminMe, adminReservations, ApiError } from "@/lib/api";
 import { formatDate, formatHour, formatPhone, kstToday } from "@/lib/format";
-import type { ReservationOut } from "@/lib/types";
+import type { AdminReservationOut } from "@/lib/types";
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState<boolean | null>(null);
@@ -45,9 +45,12 @@ function Login({ onLogin }: { onLogin: () => void }) {
 function AdminList({ onLogout }: { onLogout: () => void }) {
   const dates = Array.from({ length: 7 }, (_, i) => kstToday(i));
   const [date, setDate] = useState(dates[0]);
-  const [list, setList] = useState<ReservationOut[]>([]);
+  const [list, setList] = useState<AdminReservationOut[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [filter, setFilter] = useState<"ALL" | "BOOKED" | "CANCELLED">("ALL");
+  const booked = list.filter((r) => r.status === "BOOKED").length;
+  const shown = filter === "ALL" ? list : list.filter((r) => r.status === filter);
 
   const load = useCallback(async (d: string) => {
     setLoading(true); setError("");
@@ -71,16 +74,31 @@ function AdminList({ onLogout }: { onLogout: () => void }) {
         <input id="d" type="date" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} />
       </div>
       <div className="card">
-        <h2>{formatDate(date)} · {list.length}건</h2>
+        <h2>{formatDate(date)} · 예약됨 {booked}건 · 취소됨 {list.length - booked}건</h2>
+        <div className="tabs">
+          {(["ALL", "BOOKED", "CANCELLED"] as const).map((f) => (
+            <button key={f} className={filter === f ? "active" : ""} onClick={() => setFilter(f)}>
+              {f === "ALL" ? "전체" : f === "BOOKED" ? "예약됨" : "취소됨"}
+            </button>
+          ))}
+        </div>
         {loading ? <p className="muted">불러오는 중...</p>
           : error ? <div className="alert">{error}</div>
-          : list.length === 0 ? <p className="muted">예약이 없습니다.</p>
+          : shown.length === 0 ? <p className="muted">{filter === "CANCELLED" ? "취소된 예약이 없습니다." : "예약이 없습니다."}</p>
           : (
             <table>
-              <thead><tr><th>시간</th><th>이름</th><th>연락처</th></tr></thead>
+              <thead><tr><th>시간</th><th>이름</th><th>연락처</th><th>상태</th></tr></thead>
               <tbody>
-                {list.map((r) => (
-                  <tr key={r.id}><td>{formatHour(r.hour)}</td><td>{r.name}</td><td>{formatPhone(r.phone)}</td></tr>
+                {shown.map((r) => (
+                  <tr key={`${r.status}-${r.id}`} className={r.status === "CANCELLED" ? "cancelled" : ""}>
+                    <td>{formatHour(r.hour)}</td><td>{r.name}</td><td>{formatPhone(r.phone)}</td>
+                    <td>
+                      <span className={`badge ${r.status === "BOOKED" ? "booked" : "cancel"}`}>
+                        {r.status === "BOOKED" ? "예약됨" : "취소됨"}
+                      </span>
+                      {r.cancelledAt && <small className="muted block">{r.cancelledAt.slice(5, 16).replace("T", " ")} 취소</small>}
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public final class Dtos {
     private Dtos() {}
@@ -26,6 +27,19 @@ public final class Dtos {
     public record ReservationOut(Long id, LocalDate date, int hour, String name, String phone) {
         static ReservationOut of(Reservation r) {
             return new ReservationOut(r.getId(), r.getDate(), r.getHour(), r.getName(), r.getPhone());
+        }
+    }
+
+    /** 관리자 목록: status = BOOKED(예약됨) | CANCELLED(취소됨) */
+    public record AdminReservationOut(Long id, LocalDate date, int hour, String name, String phone,
+                                      String status, LocalDateTime createdAt, LocalDateTime cancelledAt) {
+        static AdminReservationOut booked(Reservation r) {
+            return new AdminReservationOut(r.getId(), r.getDate(), r.getHour(), r.getName(), r.getPhone(),
+                    "BOOKED", r.getCreatedAt(), null);
+        }
+        static AdminReservationOut cancelled(CancelledReservation c) {
+            return new AdminReservationOut(c.getReservationId(), c.getDate(), c.getHour(), c.getName(), c.getPhone(),
+                    "CANCELLED", c.getCreatedAt(), c.getCancelledAt());
         }
     }
 

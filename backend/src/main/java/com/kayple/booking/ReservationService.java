@@ -1,14 +1,17 @@
 package com.kayple.booking;
 
+import com.kayple.booking.Dtos.AdminReservationOut;
 import com.kayple.booking.Dtos.ReservationCreate;
 import com.kayple.booking.Dtos.ReservationOut;
 import com.kayple.booking.Dtos.SlotOut;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -21,10 +24,13 @@ public class ReservationService {
     public static final String DUPLICATE_MESSAGE = "이미 예약된 시간입니다. 다른 시간을 선택해 주세요.";
 
     private final ReservationRepository repository;
+    private final CancelledReservationRepository cancelledRepository;
     private final Clock clock;
 
-    public ReservationService(ReservationRepository repository, Clock clock) {
+    public ReservationService(ReservationRepository repository, CancelledReservationRepository cancelledRepository,
+                              Clock clock) {
         this.repository = repository;
+        this.cancelledRepository = cancelledRepository;
         this.clock = clock;
     }
 
@@ -84,7 +90,10 @@ public class ReservationService {
         return repository.findByPhoneOrderByDateAscHourAsc(normalizePhone(phone)).stream().map(ReservationOut::of).toList();
     }
 
-    /** id + 연락처가 함께 맞아야 삭제. 이미 없으면 그대로 성공(멱등). 지난 예약은 취소 불가. */
+    /**
+     * id + 연락처가 함께 맞아야 취소. 취소 이력 테이블에 복사한 뒤 원본을 삭제한다(한 트랜잭션).
+     * 이미 없으면 그대로 성공(멱등). 지난 예약은 취소 불가.
+     */
     @Transactional
     public void cancel(Long id, String phone) {
         String normalized = normalizePhone(phone);
@@ -92,12 +101,26 @@ public class ReservationService {
             if (isPast(r.getDate(), r.getHour())) {
                 throw new ApiException(HttpStatus.BAD_REQUEST, "이미 지난 예약은 취소할 수 없습니다.");
             }
+            // 동시에 두 번 취소해도 실제로 지운 요청만 이력을 남긴다.
+            if (repository.deleteByIdAndPhone(id, normalized) == 1) {
+                cancelledRepository.save(new CancelledReservation(r, LocalDateTime.now(clock)));
+            }
         });
-        repository.deleteByIdAndPhone(id, normalized);
     }
 
     @Transactional(readOnly = true)
     public List<ReservationOut> findByDate(LocalDate date) {
         return repository.findByDateOrderByHourAsc(date).stream().map(ReservationOut::of).toList();
+    }
+
+    /** 관리자용: 예약됨 + 취소됨을 시간순으로 함께 반환 (같은 시간이면 예약됨이 먼저). */
+    @Transactional(readOnly = true)
+    public List<AdminReservationOut> findAllByDateForAdmin(LocalDate date) {
+        return Stream.concat(
+                        repository.findByDateOrderByHourAsc(date).stream().map(AdminReservationOut::booked),
+                        cancelledRepository.findByDate(date).stream().map(AdminReservationOut::cancelled))
+                .sorted(Comparator.comparingInt(AdminReservationOut::hour)
+                        .thenComparing(o -> o.status().equals("CANCELLED")))
+                .toList();
     }
 }

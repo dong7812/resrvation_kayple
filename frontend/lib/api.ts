@@ -1,4 +1,4 @@
-import type { ReservationOut, SlotOut } from "./types";
+import type { AdminReservationOut, ReservationOut, SlotOut } from "./types";
 
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "";
 
@@ -32,4 +32,4 @@ export const adminLogin = (username: string, password: string) =>
   request<{ username: string }>("/api/admin/login", { method: "POST", body: JSON.stringify({ username, password }) });
 export const adminMe = () => request<{ username: string }>("/api/admin/me");
 export const adminLogout = () => request<void>("/api/admin/logout", { method: "POST" });
-export const adminReservations = (date: string) => request<ReservationOut[]>(`/api/admin/reservations?date=${date}`);
+export const adminReservations = (date: string) => request<AdminReservationOut[]>(`/api/admin/reservations?date=${date}`);

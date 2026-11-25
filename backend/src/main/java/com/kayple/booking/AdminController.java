@@ -1,7 +1,7 @@
 package com.kayple.booking;
 
 import com.kayple.booking.Dtos.LoginRequest;
-import com.kayple.booking.Dtos.ReservationOut;
+import com.kayple.booking.Dtos.AdminReservationOut;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.nio.charset.StandardCharsets;
@@ -61,7 +61,7 @@ public class AdminController {
     }
 
     @GetMapping("/reservations")
-    public List<ReservationOut> list(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-        return service.findByDate(date);
+    public List<AdminReservationOut> list(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return service.findAllByDateForAdmin(date);
     }
 }

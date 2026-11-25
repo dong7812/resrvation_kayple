@@ -31,3 +31,8 @@ th, td { text-align: left; padding: 8px 4px; border-bottom: 1px solid #eee; }
 .topbar .brand { border: 0; background: none; padding: 0; font-size: 20px; font-weight: 700; }
 .topbar-actions { display: flex; gap: 8px; }
 .topbar-actions button { padding: 8px 12px; font-size: 14px; white-space: nowrap; }
+.badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.badge.booked { background: #eff4ff; color: #2563eb; }
+.badge.cancel { background: #f3f4f6; color: #6b7280; }
+tr.cancelled td:not(:last-child) { color: #9ca3af; text-decoration: line-through; }
+.block { display: block; font-size: 11px; margin-top: 2px; }
