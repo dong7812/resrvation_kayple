@@ -6,16 +6,16 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reservation",
-        uniqueConstraints = @UniqueConstraint(name = "uk_reservation_slot", columnNames = {"date", "hour"}))
+        uniqueConstraints = @UniqueConstraint(name = "uk_reservation_slot", columnNames = {"slot_date", "slot_hour"}))
 public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "date", nullable = false)
+    @Column(name = "slot_date", nullable = false)
     private LocalDate date;
 
-    @Column(name = "hour", nullable = false)
+    @Column(name = "slot_hour", nullable = false)
     private int hour;
 
     @Column(nullable = false, length = 20)
