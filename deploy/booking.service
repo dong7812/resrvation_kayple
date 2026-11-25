@@ -1,0 +1,12 @@
+[Unit]
+Description=Kayple booking API (Spring Boot)
+After=network.target mysql.service
+
+[Service]
+User=ubuntu
+EnvironmentFile=/etc/booking.env
+ExecStart=/usr/bin/java -Duser.timezone=Asia/Seoul -jar /opt/booking/booking.jar
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
