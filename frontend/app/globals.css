@@ -1,0 +1,29 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; background: #f5f6f8; color: #111; }
+.container { max-width: 480px; margin: 0 auto; padding: 24px 16px 48px; }
+h1 { font-size: 22px; margin: 8px 0 16px; }
+h2 { font-size: 16px; margin: 20px 0 10px; }
+.card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.tabs button { flex: 1; }
+button { font: inherit; border: 1px solid #d0d4da; background: #fff; border-radius: 8px; padding: 10px 12px; cursor: pointer; }
+button.primary { background: #2563eb; border-color: #2563eb; color: #fff; }
+button.danger { background: #fff; border-color: #dc2626; color: #dc2626; }
+button.active { border-color: #2563eb; color: #2563eb; font-weight: 600; background: #eff4ff; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+.dates { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.dates button { white-space: nowrap; }
+.slots { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.slot small { display: block; font-size: 12px; color: #888; }
+label { display: block; font-size: 14px; margin: 12px 0 6px; }
+input { width: 100%; font: inherit; padding: 10px 12px; border: 1px solid #d0d4da; border-radius: 8px; }
+input.invalid { border-color: #dc2626; }
+.field-error { color: #dc2626; font-size: 13px; margin-top: 4px; }
+.alert { background: #fef2f2; color: #b91c1c; border-radius: 8px; padding: 10px 12px; margin: 12px 0; font-size: 14px; }
+.muted { color: #666; font-size: 14px; }
+.full { width: 100%; margin-top: 16px; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 8px 4px; border-bottom: 1px solid #eee; }
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.modal { background: #fff; border-radius: 12px; padding: 20px; width: 100%; max-width: 360px; }
