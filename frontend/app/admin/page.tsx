@@ -5,6 +5,9 @@ import { adminLogin, adminLogout, adminMe, adminReservations, ApiError } from "@
 import { formatDate, formatHour, formatPhone, kstToday } from "@/lib/format";
 import type { AdminReservationOut } from "@/lib/types";
 
+/** "2026-11-25T21:28:32.79" → "2026.11.25 21:28" (서버가 KST로 저장) */
+const fmtDateTime = (v: string) => v.slice(0, 16).replace("T", " ").replace(/-/g, ".");
+
 export default function AdminPage() {
   const [authed, setAuthed] = useState<boolean | null>(null);
   useEffect(() => { adminMe().then(() => setAuthed(true)).catch(() => setAuthed(false)); }, []);
@@ -73,7 +76,7 @@ function AdminList({ onLogout }: { onLogout: () => void }) {
         <label htmlFor="d">날짜</label>
         <input id="d" type="date" value={date} onChange={(e) => e.target.value && setDate(e.target.value)} />
       </div>
-      <div className="card">
+      <div className="card admin-wide">
         <h2>{formatDate(date)} · 예약됨 {booked}건 · 취소됨 {list.length - booked}건</h2>
         <div className="tabs">
           {(["ALL", "BOOKED", "CANCELLED"] as const).map((f) => (
@@ -86,8 +89,8 @@ function AdminList({ onLogout }: { onLogout: () => void }) {
           : error ? <div className="alert">{error}</div>
           : shown.length === 0 ? <p className="muted">{filter === "CANCELLED" ? "취소된 예약이 없습니다." : "예약이 없습니다."}</p>
           : (
-            <table>
-              <thead><tr><th>시간</th><th>이름</th><th>연락처</th><th>상태</th></tr></thead>
+            <div className="table-wrap"><table>
+              <thead><tr><th>상담 시간</th><th>이름</th><th>연락처</th><th>상태</th><th>예약 일시</th></tr></thead>
               <tbody>
                 {shown.map((r) => (
                   <tr key={`${r.status}-${r.id}`} className={r.status === "CANCELLED" ? "cancelled" : ""}>
@@ -96,12 +99,13 @@ function AdminList({ onLogout }: { onLogout: () => void }) {
                       <span className={`badge ${r.status === "BOOKED" ? "booked" : "cancel"}`}>
                         {r.status === "BOOKED" ? "예약됨" : "취소됨"}
                       </span>
-                      {r.cancelledAt && <small className="muted block">{r.cancelledAt.slice(5, 16).replace("T", " ")} 취소</small>}
+                      {r.cancelledAt && <small className="muted block">{fmtDateTime(r.cancelledAt)} 취소</small>}
                     </td>
+                    <td className="nowrap">{fmtDateTime(r.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           )}
       </div>
     </>

@@ -36,3 +36,6 @@ th, td { text-align: left; padding: 8px 4px; border-bottom: 1px solid #eee; }
 .badge.cancel { background: #f3f4f6; color: #6b7280; }
 tr.cancelled td:not(:last-child) { color: #9ca3af; text-decoration: line-through; }
 .block { display: block; font-size: 11px; margin-top: 2px; }
+.nowrap { white-space: nowrap; }
+.table-wrap { overflow-x: auto; }
+.container:has(.admin-wide) { max-width: 760px; }
