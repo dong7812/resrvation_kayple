@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ApiError, cancelReservation, createReservation, findReservations, getSlots } from "@/lib/api";
-import { formatDate, formatHour, formatPhone, kstToday, PHONE_REGEX } from "@/lib/format";
+import { formatDate, formatHour, formatPhone, kstToday, NAME_REGEX, PHONE_REGEX } from "@/lib/format";
 import type { ReservationOut, SlotOut } from "@/lib/types";
 
 type Step = "select" | "form" | "done";
@@ -55,6 +55,7 @@ function Booking() {
     const n = name.trim();
     if (!n) next.name = "이름을 입력해 주세요.";
     else if (n.length > 20) next.name = "이름은 20자 이내로 입력해 주세요.";
+    else if (!NAME_REGEX.test(n)) next.name = "이름은 한글 또는 영문으로 입력해 주세요.";
     if (!phone.trim()) next.phone = "연락처를 입력해 주세요.";
     else if (!PHONE_REGEX.test(phone.trim())) next.phone = "연락처는 010-0000-0000 형식으로 입력해 주세요.";
     setErrors(next);
